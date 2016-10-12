@@ -19,6 +19,15 @@ var Renderer = function ()
 	this.screenVerticesBuffer = null;
 
 	/**
+	* a color buffer for vertices
+	* 
+	* @property screenColorBuffer
+	* @type {Object}
+	* @default null
+	*/
+	this.screenColorBuffer = null;
+
+	/**
 	* the ortho matrix used to render on screen (preserves the aspect ratio)
 	* 
 	* @property matMVP
@@ -87,6 +96,25 @@ Renderer.prototype.initBuffers = function()
 
 	// Now pass the list of vertices into WebGL to build the shape
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+
+
+	// Create a buffer for the vertex color
+	this.screenColorBuffer = gl.createBuffer();
+
+	// Select this buffer as the one to apply vertex operations to from here out.
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenColorBuffer);
+
+	// Now create an array of vertices for the quad
+	var color = [
+		1.0, 0.0, 0.0,
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 1.0,
+		1.0, 1.0, 1.0,
+	];
+
+	// Now pass the list of vertices into WebGL to build the shape
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(color), gl.STATIC_DRAW);
 };
 
 /**
@@ -96,6 +124,7 @@ Renderer.prototype.initBuffers = function()
 Renderer.prototype.destroyBuffers = function()
 {
 	gl.deleteBuffer(this.screenVerticesBuffer);
+	gl.deleteBuffer(this.screenColorBuffer);
 }
 
 /**
@@ -122,17 +151,17 @@ Renderer.prototype.drawRect = function()
 	var shader = shaderLibrary.getShader("fragColor");
 	gl.useProgram(shader.program);
 
-	var timeInSec = Date.now()/1000;
-
-	gl.uniform1f(shader.uniformArr["uFactor"], Math.abs(Math.sin(timeInSec)));
 	gl.uniformMatrix4fv(shader.uniformArr["uMVP"], false, this.matOrtho);
-	gl.uniform3fv(shader.uniformArr["uColor"], [1.0, 0.0, 0.0, 0.0, 1.0, 0.0]);
 
 	// Draw the square by binding the array buffer to the quad's vertices
 	// array, setting attributes, and pushing it to GL
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenVerticesBuffer);
 	gl.enableVertexAttribArray(0);
 	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenColorBuffer);
+	gl.enableVertexAttribArray(1);
+	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
 	
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
