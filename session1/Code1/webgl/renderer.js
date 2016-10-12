@@ -19,6 +19,15 @@ var Renderer = function ()
 	this.screenVerticesBuffer = null;
 
 	/**
+	* index buffer
+	* 
+	* @property screenIndexBuffer
+	* @type {Object}
+	* @default null
+	*/
+	this.screenIndexBuffer = null;
+
+	/**
 	* the ortho matrix used to render on screen (preserves the aspect ratio)
 	* 
 	* @property matMVP
@@ -91,6 +100,21 @@ Renderer.prototype.initBuffers = function()
 
 	// Now pass the list of vertices into WebGL to build the shape
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+	// Create a buffer for the quad's vertices.
+	this.screenIndexBuffer = gl.createBuffer();
+
+	// Select this buffer as the one to apply vertex operations to from here out.
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.screenIndexBuffer);
+
+	// Now create an array of vertices for the quad
+	var indices = [
+		0,1,2,
+		2,1,3
+	];
+
+	// Now pass the list of vertices into WebGL to build the shape
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 };
 
 /**
@@ -100,6 +124,7 @@ Renderer.prototype.initBuffers = function()
 Renderer.prototype.destroyBuffers = function()
 {
 	gl.deleteBuffer(this.screenVerticesBuffer);
+	gl.deleteBuffer(this.screenIndexBuffer);
 }
 
 /**
@@ -136,6 +161,7 @@ Renderer.prototype.drawRect = function()
 
 	gl.enableVertexAttribArray(1);
 	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, Float32Array.BYTES_PER_ELEMENT*5, Float32Array.BYTES_PER_ELEMENT*2);
-	
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.screenIndexBuffer);
+	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 }
