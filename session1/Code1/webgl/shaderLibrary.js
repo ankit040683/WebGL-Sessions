@@ -162,7 +162,7 @@ ShaderLibrary.prototype.init = function()
 								srcFragShaderFragColor,
 								["aVertexPosition"],
 								[],
-								["uMVP", "uColor"]);
+								["uMVP", "uColor", "uFactor"]);
 	this.shaders["fragColor"] = shaderFragColor;
 }
 

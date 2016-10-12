@@ -122,8 +122,11 @@ Renderer.prototype.drawRect = function()
 	var shader = shaderLibrary.getShader("fragColor");
 	gl.useProgram(shader.program);
 
+	var timeInSec = Date.now()/1000;
+
+	gl.uniform1f(shader.uniformArr["uFactor"], Math.abs(Math.sin(timeInSec)));
 	gl.uniformMatrix4fv(shader.uniformArr["uMVP"], false, this.matOrtho);
-	gl.uniform3f(shader.uniformArr["uColor"], 1.0, 0.0, 0.0);
+	gl.uniform3fv(shader.uniformArr["uColor"], [1.0, 0.0, 0.0, 0.0, 1.0, 0.0]);
 
 	// Draw the square by binding the array buffer to the quad's vertices
 	// array, setting attributes, and pushing it to GL
