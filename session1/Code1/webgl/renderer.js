@@ -86,16 +86,23 @@ Renderer.prototype.initBuffers = function()
 	// Select this buffer as the one to apply vertex operations to from here out.
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenVerticesBuffer);
 
+	var root3 = Math.sqrt(3.0);
+
 	// Now create an array of vertices for the quad
 	var vertices = [
-		-0.5,  -0.5,
+		1.0,  root3/2.0,
 		1.0, 0.0, 0.0,
-		0.5, -0.5,
+		-1.0,  root3/2.0,
 		0.0, 1.0, 0.0,
-		-0.5,  0.5,
+		0.0,  -root3/2.0,
 		0.0, 0.0, 1.0,
-		0.5, 0.5,
-		1.0, 1.0, 1.0,
+
+		0.0,  root3/2.0,
+		0.0, 0.0, 1.0,
+		-0.5,  0.0,
+		1.0, 0.0, 0.0,
+		0.5,  0.0,
+		0.0, 1.0, 0.0,
 	];
 
 	// Now pass the list of vertices into WebGL to build the shape
@@ -109,8 +116,10 @@ Renderer.prototype.initBuffers = function()
 
 	// Now create an array of vertices for the quad
 	var indices = [
-		0,1,2,
-		2,1,3
+		0,3,5,
+		3,4,1,
+		4,5,2,
+		3,4,5
 	];
 
 	// Now pass the list of vertices into WebGL to build the shape
@@ -163,5 +172,5 @@ Renderer.prototype.drawRect = function()
 	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, Float32Array.BYTES_PER_ELEMENT*5, Float32Array.BYTES_PER_ELEMENT*2);
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.screenIndexBuffer);
-	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+	gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
 }
