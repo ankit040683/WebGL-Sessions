@@ -104,7 +104,7 @@ Renderer.prototype.initBuffers = function()
 	// Select this buffer as the one to apply vertex operations to from here out.
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenVerticesBuffer);
 
-	this.nPoints = 20;
+	this.nPoints = 5;
 
 	// Now create an array of vertices
 	var vertices = new Float32Array(this.nPoints*2)
@@ -161,5 +161,5 @@ Renderer.prototype.drawRect = function()
 	gl.enableVertexAttribArray(0);
 	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-	gl.drawArrays(gl.LINES, 0, this.nPoints);
+	gl.drawArrays(gl.LINE_STRIP, 0, this.nPoints);
 }
