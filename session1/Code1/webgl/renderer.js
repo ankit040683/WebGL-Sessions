@@ -104,7 +104,7 @@ Renderer.prototype.initBuffers = function()
 	// Select this buffer as the one to apply vertex operations to from here out.
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenVerticesBuffer);
 
-	this.nPoints = 10000;
+	this.nPoints = 20;
 
 	// Now create an array of vertices
 	var vertices = new Float32Array(this.nPoints*2)
@@ -116,25 +116,6 @@ Renderer.prototype.initBuffers = function()
 
 	// Now pass the list of vertices into WebGL to build the shape
 	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
-
-
-	// Create a buffer for the quad's vertices.
-	this.screenColorBuffer = gl.createBuffer();
-
-	// Select this buffer as the one to apply vertex operations to from here out.
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenColorBuffer);
-
-	// Now create an array of color values
-	var colors = new Float32Array(this.nPoints*3)
-
-	for(var i=0; i<this.nPoints*3; i++)
-	{
-		colors[i] = Math.random();
-	}
-
-	// Now pass the list of vertices into WebGL to build the shape
-	gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 };
 
 /**
@@ -144,7 +125,7 @@ Renderer.prototype.initBuffers = function()
 Renderer.prototype.destroyBuffers = function()
 {
 	gl.deleteBuffer(this.screenVerticesBuffer);
-	gl.deleteBuffer(this.screenColorBuffer);
+	//gl.deleteBuffer(this.screenColorBuffer);
 }
 
 /**
@@ -172,6 +153,7 @@ Renderer.prototype.drawRect = function()
 	gl.useProgram(shader.program);
 
 	gl.uniformMatrix4fv(shader.uniformArr["uMVP"], false, this.matOrtho);
+	gl.uniform3f(shader.uniformArr["uColor"], 1.0, 0.0, 0.0);
 
 	// Draw the square by binding the array buffer to the quad's vertices
 	// array, setting attributes, and pushing it to GL
@@ -179,9 +161,5 @@ Renderer.prototype.drawRect = function()
 	gl.enableVertexAttribArray(0);
 	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenColorBuffer);
-	gl.enableVertexAttribArray(1);
-	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
-
-	gl.drawArrays(gl.POINTS, 0, this.nPoints);
+	gl.drawArrays(gl.LINES, 0, this.nPoints);
 }

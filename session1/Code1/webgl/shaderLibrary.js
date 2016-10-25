@@ -160,9 +160,9 @@ ShaderLibrary.prototype.init = function()
 	// initialize the shader program and add the program in the list of loaded shaders
 	shaderFragColor.Initialize(	srcVertShader,
 								srcFragShaderFragColor,
-								["aVertexPosition", "aVertexColor"],
+								["aVertexPosition"],
 								[],
-								["uMVP"]);
+								["uMVP", "uColor"]);
 	this.shaders["fragColor"] = shaderFragColor;
 }
 
