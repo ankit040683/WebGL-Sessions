@@ -46,13 +46,13 @@ var Renderer = function ()
 	this.matOrtho = mat4.create();
 
 	/**
-	* the points count on screen
+	* the number of triangles on screen
 	* 
-	* @property nPoints
+	* @property nTriangles
 	* @type {Number}
 	* @default 0
 	*/
-	this.nPoints = 0;
+	this.nTriangles = 0;
 
 	// handle to the shader library
 	shaderLibrary = null;
@@ -104,14 +104,25 @@ Renderer.prototype.initBuffers = function()
 	// Select this buffer as the one to apply vertex operations to from here out.
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenVerticesBuffer);
 
-	this.nPoints = 5;
+	this.nTriangles = 8;
+
+	var grids = Math.ceil( Math.sqrt(this.nTriangles) );
 
 	// Now create an array of vertices
-	var vertices = new Float32Array(this.nPoints*2)
+	var vertices = new Float32Array(this.nTriangles*2*3)
 
-	for(var i=0; i<this.nPoints*2; i++)
+	// place all the triangles in a gris like fashion
+	for(var i=0; i<this.nTriangles; i++)
 	{
-		vertices[i] = Math.random()*2.0 - 1.0;
+		for(j=0; j<3; j++)
+		{
+			// generate vertex value
+			var xCoord = Math.random()*2.0/grids;
+			var yCoord = Math.random()*2.0/grids;
+
+			vertices[2*(i*3 + j)] = -1.0 + Math.floor(i/grids)*2.0/grids + xCoord;
+			vertices[2*(i*3 + j)+1] = -1.0 + Math.floor(i%grids)*2.0/grids + yCoord;
+		}
 	}
 
 	// Now pass the list of vertices into WebGL to build the shape
@@ -139,7 +150,7 @@ Renderer.prototype.drawScene = function()
 
 	gl.viewport(0, 0, canvas.width, canvas.height);
 
-	this.drawRect();	
+	this.drawRect();
 };
 
 /**
@@ -161,5 +172,5 @@ Renderer.prototype.drawRect = function()
 	gl.enableVertexAttribArray(0);
 	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-	gl.drawArrays(gl.LINE_LOOP, 0, this.nPoints);
+	gl.drawArrays(gl.TRIANGLES, 0, this.nTriangles*3);
 }
