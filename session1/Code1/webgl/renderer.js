@@ -161,5 +161,5 @@ Renderer.prototype.drawRect = function()
 	gl.enableVertexAttribArray(0);
 	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-	gl.drawArrays(gl.LINE_STRIP, 0, this.nPoints);
+	gl.drawArrays(gl.LINE_LOOP, 0, this.nPoints);
 }
