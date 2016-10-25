@@ -46,13 +46,13 @@ var Renderer = function ()
 	this.matOrtho = mat4.create();
 
 	/**
-	* the number of triangles on screen
+	* the number of points in polygon
 	* 
-	* @property nTriangles
+	* @property nPoints
 	* @type {Number}
 	* @default 0
 	*/
-	this.nTriangles = 0;
+	this.nPoints = 8;
 
 	// handle to the shader library
 	shaderLibrary = null;
@@ -105,22 +105,25 @@ Renderer.prototype.initBuffers = function()
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenVerticesBuffer);
 
 	// Now create an array of vertices
-	var vertices = [
-		-0.5, 0.5,
-		-0.5, 0.3,
+	var vertices = new Float32Array(2*(this.nPoints+2));
 
-		0.1, 0.5,
-		-0.1, 0.3,
+	// initialize centre vertex
+	vertices[0] = 0.0;
+	vertices[1] = 0.0;
 
-		0.1, -0.3,
-		-0.1, -0.5,
+	// this will be the angular distance between vertices
+	var deltaAngle = 2*Math.PI / this.nPoints;
 
-		0.5, -0.3,
-		0.5, -0.5,
-	];
+	// add other vertices
+	for(var i=0; i<this.nPoints+1; i++)
+	{
+		var angle = i*deltaAngle;
+		vertices[2*(i+1)] = Math.cos(angle);
+		vertices[2*(i+1)+1] = Math.sin(angle);
+	}
 
 	// Now pass the list of vertices into WebGL to build the shape
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
 
 
@@ -131,9 +134,9 @@ Renderer.prototype.initBuffers = function()
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenColorBuffer);
 
 	// Now create an array of vertices
-	var colors = new Float32Array(8*3);
+	var colors = new Float32Array(3*(this.nPoints+2));
 
-	for(var i=0; i<8*3; i++)
+	for(var i=0; i<3*(this.nPoints+2); i++)
 		colors[i] = Math.random();
 
 	// Now pass the list of vertices into WebGL to build the shape
@@ -175,7 +178,6 @@ Renderer.prototype.drawRect = function()
 	gl.useProgram(shader.program);
 
 	gl.uniformMatrix4fv(shader.uniformArr["uMVP"], false, this.matOrtho);
-	gl.uniform3f(shader.uniformArr["uColor"], 1.0, 0.0, 0.0);
 
 	// Draw the square by binding the array buffer to the quad's vertices
 	// array, setting attributes, and pushing it to GL
@@ -187,5 +189,5 @@ Renderer.prototype.drawRect = function()
 	gl.enableVertexAttribArray(1);
 	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
 
-	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 8);
+	gl.drawArrays(gl.TRIANGLE_FAN, 0, this.nPoints+2);
 }
