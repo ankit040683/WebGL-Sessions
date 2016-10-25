@@ -19,6 +19,15 @@ var Renderer = function ()
 	this.screenVerticesBuffer = null;
 
 	/**
+	* a color buffer
+	* 
+	* @property screenColorBuffer
+	* @type {Object}
+	* @default null
+	*/
+	this.screenColorBuffer = null;
+
+	/**
 	* index buffer
 	* 
 	* @property screenIndexBuffer
@@ -35,6 +44,15 @@ var Renderer = function ()
 	* @default identity
 	*/
 	this.matOrtho = mat4.create();
+
+	/**
+	* the points count on screen
+	* 
+	* @property nPoints
+	* @type {Number}
+	* @default 0
+	*/
+	this.nPoints = 0;
 
 	// handle to the shader library
 	shaderLibrary = null;
@@ -86,44 +104,37 @@ Renderer.prototype.initBuffers = function()
 	// Select this buffer as the one to apply vertex operations to from here out.
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenVerticesBuffer);
 
-	var root3 = Math.sqrt(3.0);
+	this.nPoints = 10000;
 
-	// Now create an array of vertices for the quad
-	var vertices = [
-		1.0,  root3/2.0,
-		1.0, 0.0, 0.0,
-		-1.0,  root3/2.0,
-		0.0, 1.0, 0.0,
-		0.0,  -root3/2.0,
-		0.0, 0.0, 1.0,
+	// Now create an array of vertices
+	var vertices = new Float32Array(this.nPoints*2)
 
-		0.0,  root3/2.0,
-		0.0, 0.0, 1.0,
-		-0.5,  0.0,
-		1.0, 0.0, 0.0,
-		0.5,  0.0,
-		0.0, 1.0, 0.0,
-	];
+	for(var i=0; i<this.nPoints*2; i++)
+	{
+		vertices[i] = Math.random()*2.0 - 1.0;
+	}
 
 	// Now pass the list of vertices into WebGL to build the shape
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+
 
 	// Create a buffer for the quad's vertices.
-	this.screenIndexBuffer = gl.createBuffer();
+	this.screenColorBuffer = gl.createBuffer();
 
 	// Select this buffer as the one to apply vertex operations to from here out.
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.screenIndexBuffer);
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenColorBuffer);
 
-	// Now create an array of vertices for the quad
-	var indices = [
-		0,3,5,
-		3,4,1,
-		4,5,2,
-		3,4,5
-	];
+	// Now create an array of color values
+	var colors = new Float32Array(this.nPoints*3)
+
+	for(var i=0; i<this.nPoints*3; i++)
+	{
+		colors[i] = Math.random();
+	}
 
 	// Now pass the list of vertices into WebGL to build the shape
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
 };
 
 /**
@@ -133,7 +144,7 @@ Renderer.prototype.initBuffers = function()
 Renderer.prototype.destroyBuffers = function()
 {
 	gl.deleteBuffer(this.screenVerticesBuffer);
-	gl.deleteBuffer(this.screenIndexBuffer);
+	gl.deleteBuffer(this.screenColorBuffer);
 }
 
 /**
@@ -166,11 +177,11 @@ Renderer.prototype.drawRect = function()
 	// array, setting attributes, and pushing it to GL
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenVerticesBuffer);
 	gl.enableVertexAttribArray(0);
-	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, Float32Array.BYTES_PER_ELEMENT*5, 0);
+	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.screenColorBuffer);
 	gl.enableVertexAttribArray(1);
-	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, Float32Array.BYTES_PER_ELEMENT*5, Float32Array.BYTES_PER_ELEMENT*2);
+	gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
 
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.screenIndexBuffer);
-	gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_SHORT, 0);
+	gl.drawArrays(gl.POINTS, 0, this.nPoints);
 }
